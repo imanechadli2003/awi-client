@@ -8,6 +8,13 @@ interface Session {
     nomSession: string;
 }
 
+interface Gestionnaire {
+    nom: string;
+    prenom: string;
+    email: string;
+    motDePasse: string;
+}
+
 const SettingsPage: React.FC = () => {
     const [isLoggedIn, setIsLoggedIn] = useState(false);
     const [username, setUsername] = useState('');
@@ -28,6 +35,12 @@ const SettingsPage: React.FC = () => {
         { fraisDepot: '18%', fraisVente: '28%', nomSession: 'Session 9' },
         { fraisDepot: '19%', fraisVente: '29%', nomSession: 'Session 10' }
     ]);
+    const [gestionnaires, setGestionnaires] = useState<Gestionnaire[]>([]);
+    const [nom, setNom] = useState('');
+    const [prenom, setPrenom] = useState('');
+    const [email, setEmail] = useState('');
+    const [motDePasse, setMotDePasse] = useState('');
+    const [adminPassword] = useState('admin123'); // Set the admin password here
 
     const handleLogin = () => {
         // Ajoutez votre logique de connexion ici
@@ -45,6 +58,24 @@ const SettingsPage: React.FC = () => {
 
     const handleCloseSession = () => {
         setActiveSession(null);
+    };
+
+    const handleAddGestionnaire = () => {
+        const newGestionnaire = { nom, prenom, email, motDePasse };
+        setGestionnaires([...gestionnaires, newGestionnaire]);
+        setNom('');
+        setPrenom('');
+        setEmail('');
+        setMotDePasse('');
+    };
+
+    const handleShowPassword = (gestionnaire: Gestionnaire) => {
+        const adminPass = prompt('Veuillez entrer le mot de passe administrateur pour voir le mot de passe du gestionnaire :');
+        if (adminPass === adminPassword) {
+            alert(`Mot de passe du gestionnaire ${gestionnaire.nom} : ${gestionnaire.motDePasse}`);
+        } else {
+            alert('Mot de passe administrateur incorrect.');
+        }
     };
 
     if (!isLoggedIn) {
@@ -98,6 +129,52 @@ const SettingsPage: React.FC = () => {
                     style={{ display: 'block', width: '100%', padding: '10px', marginBottom: '10px', borderRadius: '8px', border: '1px solid #ccc' }}
                 />
                 <button onClick={handleCreateSession} style={{ padding: '10px 20px', borderRadius: '8px', backgroundColor: '#28a745', color: 'white', border: 'none', cursor: 'pointer', marginTop: '10px' }}>Créer Session</button>
+            </div>
+
+            <div className="add-gestionnaire" style={{ borderRadius: '12px', border: '1px solid #ddd', padding: '20px', marginBottom: '20px', boxShadow: '0 4px 8px rgba(0, 0, 0, 0.1)' }}>
+                <h3 style={{ marginBottom: '16px', fontSize: '20px', fontWeight: 'bold' }}>Ajouter Gestionnaire</h3>
+                <input
+                    type="text"
+                    placeholder="Nom"
+                    value={nom}
+                    onChange={(e) => setNom(e.target.value)}
+                    style={{ display: 'block', width: '100%', padding: '10px', marginBottom: '10px', borderRadius: '8px', border: '1px solid #ccc' }}
+                />
+                <input
+                    type="text"
+                    placeholder="Prénom"
+                    value={prenom}
+                    onChange={(e) => setPrenom(e.target.value)}
+                    style={{ display: 'block', width: '100%', padding: '10px', marginBottom: '10px', borderRadius: '8px', border: '1px solid #ccc' }}
+                />
+                <input
+                    type="email"
+                    placeholder="Email"
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
+                    style={{ display: 'block', width: '100%', padding: '10px', marginBottom: '10px', borderRadius: '8px', border: '1px solid #ccc' }}
+                />
+                <input
+                    type="password"
+                    placeholder="Mot de passe"
+                    value={motDePasse}
+                    onChange={(e) => setMotDePasse(e.target.value)}
+                    style={{ display: 'block', width: '100%', padding: '10px', marginBottom: '10px', borderRadius: '8px', border: '1px solid #ccc' }}
+                />
+                <button onClick={handleAddGestionnaire} style={{ padding: '10px 20px', borderRadius: '8px', backgroundColor: '#007BFF', color: 'white', border: 'none', cursor: 'pointer', marginTop: '10px' }}>Ajouter Gestionnaire</button>
+            </div>
+
+            <div className="gestionnaire-list" style={{ borderRadius: '12px', border: '1px solid #ddd', padding: '20px', marginBottom: '20px', boxShadow: '0 4px 8px rgba(0, 0, 0, 0.1)' }}>
+                <h3 style={{ marginBottom: '16px', fontSize: '20px', fontWeight: 'bold' }}>Liste des Gestionnaires</h3>
+                {gestionnaires.map((gestionnaire, index) => (
+                    <div key={index} style={{ marginBottom: '20px' }}>
+                        <p><strong>Nom:</strong> {gestionnaire.nom}</p>
+                        <p><strong>Prénom:</strong> {gestionnaire.prenom}</p>
+                        <p><strong>Email:</strong> {gestionnaire.email}</p>
+                        <button onClick={() => handleShowPassword(gestionnaire)} style={{ padding: '5px 10px', borderRadius: '8px', backgroundColor: '#007BFF', color: 'white', border: 'none', cursor: 'pointer', marginTop: '10px' }}>Voir Mot de Passe</button>
+                        {index < gestionnaires.length - 1 && <hr style={{ margin: '20px 0', borderColor: '#ddd' }} />}
+                    </div>
+                ))}
             </div>
 
             {activeSession && (
