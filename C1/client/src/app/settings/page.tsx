@@ -131,52 +131,6 @@ const SettingsPage: React.FC = () => {
                 <button onClick={handleCreateSession} style={{ padding: '10px 20px', borderRadius: '8px', backgroundColor: '#28a745', color: 'white', border: 'none', cursor: 'pointer', marginTop: '10px' }}>Créer Session</button>
             </div>
 
-            <div className="add-gestionnaire" style={{ borderRadius: '12px', border: '1px solid #ddd', padding: '20px', marginBottom: '20px', boxShadow: '0 4px 8px rgba(0, 0, 0, 0.1)' }}>
-                <h3 style={{ marginBottom: '16px', fontSize: '20px', fontWeight: 'bold' }}>Ajouter Gestionnaire</h3>
-                <input
-                    type="text"
-                    placeholder="Nom"
-                    value={nom}
-                    onChange={(e) => setNom(e.target.value)}
-                    style={{ display: 'block', width: '100%', padding: '10px', marginBottom: '10px', borderRadius: '8px', border: '1px solid #ccc' }}
-                />
-                <input
-                    type="text"
-                    placeholder="Prénom"
-                    value={prenom}
-                    onChange={(e) => setPrenom(e.target.value)}
-                    style={{ display: 'block', width: '100%', padding: '10px', marginBottom: '10px', borderRadius: '8px', border: '1px solid #ccc' }}
-                />
-                <input
-                    type="email"
-                    placeholder="Email"
-                    value={email}
-                    onChange={(e) => setEmail(e.target.value)}
-                    style={{ display: 'block', width: '100%', padding: '10px', marginBottom: '10px', borderRadius: '8px', border: '1px solid #ccc' }}
-                />
-                <input
-                    type="password"
-                    placeholder="Mot de passe"
-                    value={motDePasse}
-                    onChange={(e) => setMotDePasse(e.target.value)}
-                    style={{ display: 'block', width: '100%', padding: '10px', marginBottom: '10px', borderRadius: '8px', border: '1px solid #ccc' }}
-                />
-                <button onClick={handleAddGestionnaire} style={{ padding: '10px 20px', borderRadius: '8px', backgroundColor: '#007BFF', color: 'white', border: 'none', cursor: 'pointer', marginTop: '10px' }}>Ajouter Gestionnaire</button>
-            </div>
-
-            <div className="gestionnaire-list" style={{ borderRadius: '12px', border: '1px solid #ddd', padding: '20px', marginBottom: '20px', boxShadow: '0 4px 8px rgba(0, 0, 0, 0.1)' }}>
-                <h3 style={{ marginBottom: '16px', fontSize: '20px', fontWeight: 'bold' }}>Liste des Gestionnaires</h3>
-                {gestionnaires.map((gestionnaire, index) => (
-                    <div key={index} style={{ marginBottom: '20px' }}>
-                        <p><strong>Nom:</strong> {gestionnaire.nom}</p>
-                        <p><strong>Prénom:</strong> {gestionnaire.prenom}</p>
-                        <p><strong>Email:</strong> {gestionnaire.email}</p>
-                        <button onClick={() => handleShowPassword(gestionnaire)} style={{ padding: '5px 10px', borderRadius: '8px', backgroundColor: '#007BFF', color: 'white', border: 'none', cursor: 'pointer', marginTop: '10px' }}>Voir Mot de Passe</button>
-                        {index < gestionnaires.length - 1 && <hr style={{ margin: '20px 0', borderColor: '#ddd' }} />}
-                    </div>
-                ))}
-            </div>
-
             {activeSession && (
                 <div className="active-session" style={{ borderRadius: '12px', border: '1px solid #ddd', padding: '20px', marginBottom: '20px', boxShadow: '0 4px 8px rgba(0, 0, 0, 0.1)' }}>
                     <h3 style={{ marginBottom: '16px', fontSize: '20px', fontWeight: 'bold' }}>Session Active</h3>
@@ -187,16 +141,66 @@ const SettingsPage: React.FC = () => {
                 </div>
             )}
 
-            <div className="session-history" style={{ borderRadius: '12px', border: '1px solid #ddd', padding: '20px', boxShadow: '0 4px 8px rgba(0, 0, 0, 0.1)' }}>
-                <h3 style={{ marginBottom: '16px', fontSize: '20px', fontWeight: 'bold' }}>Section Historique</h3>
-                {sessionHistory.map((session, index) => (
-                    <div key={index} style={{ marginBottom: '20px' }}>
-                        <p><strong>Nom Session:</strong> {session.nomSession}</p>
-                        <p><strong>Frais Dépôt:</strong> {session.fraisDepot}</p>
-                        <p><strong>Frais Vente:</strong> {session.fraisVente}</p>
-                        {index < sessionHistory.length - 1 && <hr style={{ margin: '20px 0', borderColor: '#ddd' }} />}
-                    </div>
-                ))}
+            <div className="session-history" style={{ display: 'flex', flexDirection: 'row', borderRadius: '12px', border: '1px solid #ddd', padding: '20px', marginBottom: '20px', boxShadow: '0 4px 8px rgba(0, 0, 0, 0.1)', height: '400px' }}>
+                <div className="session-history-list" style={{ flex: 1, overflowY: 'auto', maxHeight: '100%' }}>
+                    <h3 style={{ marginBottom: '16px', fontSize: '20px', fontWeight: 'bold', position: 'sticky', top: 0, backgroundColor: 'white', zIndex: 1 }}>Section Historique</h3>
+                    {sessionHistory.map((session, index) => (
+                        <div key={index} style={{ marginBottom: '20px' }}>
+                            <p><strong>Nom Session:</strong> {session.nomSession}</p>
+                            <p><strong>Frais Dépôt:</strong> {session.fraisDepot}</p>
+                            <p><strong>Frais Vente:</strong> {session.fraisVente}</p>
+                            {index < sessionHistory.length - 1 && <hr style={{ margin: '20px 0', borderColor: '#ddd' }} />}
+                        </div>
+                    ))}
+                </div>
+            </div>
+
+            <div className="gestionnaire-section" style={{ display: 'flex', flexDirection: 'row', borderRadius: '12px', border: '1px solid #ddd', padding: '20px', marginBottom: '20px', boxShadow: '0 4px 8px rgba(0, 0, 0, 0.1)', height: '400px' }}>
+                <div className="add-gestionnaire" style={{ flex: 1, marginRight: '20px' }}>
+                    <h3 style={{ marginBottom: '16px', fontSize: '20px', fontWeight: 'bold' }}>Ajouter Gestionnaire</h3>
+                    <input
+                        type="text"
+                        placeholder="Nom"
+                        value={nom}
+                        onChange={(e) => setNom(e.target.value)}
+                        style={{ display: 'block', width: '100%', padding: '10px', marginBottom: '10px', borderRadius: '8px', border: '1px solid #ccc' }}
+                    />
+                    <input
+                        type="text"
+                        placeholder="Prénom"
+                        value={prenom}
+                        onChange={(e) => setPrenom(e.target.value)}
+                        style={{ display: 'block', width: '100%', padding: '10px', marginBottom: '10px', borderRadius: '8px', border: '1px solid #ccc' }}
+                    />
+                    <input
+                        type="email"
+                        placeholder="Email"
+                        value={email}
+                        onChange={(e) => setEmail(e.target.value)}
+                        style={{ display: 'block', width: '100%', padding: '10px', marginBottom: '10px', borderRadius: '8px', border: '1px solid #ccc' }}
+                    />
+                    <input
+                        type="password"
+                        placeholder="Mot de passe"
+                        value={motDePasse}
+                        onChange={(e) => setMotDePasse(e.target.value)}
+                        style={{ display: 'block', width: '100%', padding: '10px', marginBottom: '10px', borderRadius: '8px', border: '1px solid #ccc' }}
+                    />
+                    <button onClick={handleAddGestionnaire} style={{ padding: '10px 20px', borderRadius: '8px', backgroundColor: '#007BFF', color: 'white', border: 'none', cursor: 'pointer', marginTop: '10px' }}>Ajouter Gestionnaire</button>
+                </div>
+
+                <div className="gestionnaire-list" style={{ flex: 1, overflowY: 'auto', maxHeight: '100%' }}>
+                    <h3 style={{ marginBottom: '16px', fontSize: '20px', fontWeight: 'bold', position: 'sticky', top: 0, backgroundColor: 'white', zIndex: 1 }}>Liste des Gestionnaires</h3>
+                    {gestionnaires.map((gestionnaire, index) => (
+                        <div key={index} style={{ marginBottom: '20px' }}>
+                            <p><strong>Nom:</strong> {gestionnaire.nom}</p>
+                            <p><strong>Prénom:</strong> {gestionnaire.prenom}</p>
+                            <p><strong>Email:</strong> {gestionnaire.email}</p>
+                            <button onClick={() => handleShowPassword(gestionnaire)} style={{ padding: '5px 10px', borderRadius: '8px', backgroundColor: '#007BFF', color: 'white', border: 'none', cursor: 'pointer', marginTop: '10px' }}>Voir Mot de Passe</button>
+                            {index < gestionnaires.length - 1 && <hr style={{ margin: '20px 0', borderColor: '#ddd' }} />}
+                        </div>
+                    ))}
+                </div>
             </div>
         </div>
     );
