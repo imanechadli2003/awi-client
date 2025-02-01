@@ -6,6 +6,7 @@ import { usePathname } from 'next/navigation';
 import React from 'react';
 import Image from "next/image";
 import Link from "next/link";
+import logo from "./LogoJM.png"
 interface SidebarLinkProps {
   href: string;
   icon: LucideIcon; // Use this icon prop directly without renaming it to Icon
@@ -15,7 +16,7 @@ interface SidebarLinkProps {
 
 const SidebarLink = ({
   href,
-  icon: Icon, // Rename icon prop to Icon here
+  icon: Icon, 
   label,
   isCollapsed
 }: SidebarLinkProps) => {
@@ -62,12 +63,22 @@ const Sidebar = () => {
         
       }`}
       >
-      <div>logo</div>
-     <h1 className={`${isSidebarCollapsed ? "hidden":"block"}
-     font-extrabold text-2xl`}
-     >
-     Juego MANIA
-     </h1>
+        <Image 
+        src={logo} 
+        alt="Logo" 
+        width={isSidebarCollapsed ? 100 : 130} 
+        height={isSidebarCollapsed ? 100 : 130} 
+        className="object-contain"
+        style={{ maxWidth:isSidebarCollapsed ? '100px':"130px", maxHeight:isSidebarCollapsed ? '100px':"130px", marginLeft:-40}}
+        />
+
+        <h1 className={`${isSidebarCollapsed ? "hidden" : "block"} font-extrabold text-2xl`} style={{marginLeft:-40}}>
+          <span className="text-red-500">Juego</span><br/>
+          <span className="text-green-500">MA</span>
+          <span className="text-orange-500">NI</span>
+          <span className="text-red-500">A</span>
+        </h1>
+
      
      <button className="md:hidden px-3 py-3 bg-gray-100 rounded-full hover:bg-blue-100" 
      onClick={toggleSidebar}>
@@ -117,7 +128,7 @@ const Sidebar = () => {
       <SidebarLink 
       href="/settings" 
       icon={SlidersHorizontal} 
-      label="Settings" 
+      label="Admin" 
       isCollapsed={isSidebarCollapsed}/>
 
       
@@ -126,7 +137,7 @@ const Sidebar = () => {
 
    {/*FOOTER*/}
    <div className={`${isSidebarCollapsed ? "hidden":"block"} mb-10`}>
-    <p className="text-center text-xs text-gray-500">§copy;2024 Stock</p>
+    <p className="text-center text-xs text-gray-500">JuegoMania-2024</p>
    </div>
        
 

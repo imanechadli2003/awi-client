@@ -1,10 +1,12 @@
+"use client";
+
 import React, { useState } from "react";
 import {
-  Game,
-  Vendeur,
   useGetVendeursQuery,
   useCreerDepotMutation,
   useGetAllJeuxMarquesQuery,
+  useGetActiveSessionQuery,
+  useGetDepotsQuery,
 } from "@/state/api";
 import {
   Button,
@@ -36,16 +38,23 @@ const CreateProductModal = ({
   onCreate,
 }: CreateDepotModalProps) => {
   const { data: vendeurs, isLoading: vendeursLoading } = useGetVendeursQuery();
-  const { data: jeuxMarques, isLoading: marquesLoading } =
-    useGetAllJeuxMarquesQuery();
+  const { data: jeuxMarques, isLoading: marquesLoading } = useGetAllJeuxMarquesQuery();
+  // Récupération de la session active pour obtenir le pourcentage de frais de dépôt
+  const { data: activeSession } = useGetActiveSessionQuery();
+
   const [createDepot, { isLoading: isCreatingDepot }] = useCreerDepotMutation();
-  const [formData, setFormData] = useState<depotformdata>({
-    VendeurID: 0, // Initialisé à 0 pour respecter le type number
+
+  // State initial pour le formulaire de dépôt
+  const initialFormData: depotformdata = {
+    VendeurID: 0,
     jeux: [],
-  });
+  };
+
+  const [formData, setFormData] = useState<depotformdata>(initialFormData);
+
+  const [quantities, setQuantities] = useState<{ [key: number]: number }>({});
 
   const handleVendeurChange = (event: SelectChangeEvent<string>) => {
-    // Conversion de la valeur en number avant de la stocker
     const vendeurId = parseInt(event.target.value, 10);
     setFormData({ ...formData, VendeurID: vendeurId });
   };
@@ -59,7 +68,6 @@ const CreateProductModal = ({
     newJeux[index] = { ...newJeux[index], [field]: parseInt(value.toString(), 10) };
     setFormData({ ...formData, jeux: newJeux });
   };
-  
 
   const handleAddJeu = () => {
     setFormData({
@@ -76,6 +84,15 @@ const CreateProductModal = ({
     setFormData({ ...formData, jeux: newJeux });
   };
 
+  // Calcul du total des dépôts : somme sur chaque jeu (prixUnitaire * quantite_depose)
+  const totalDeposits = formData.jeux.reduce((acc, jeu) => {
+    return acc + (jeu.prixUnitaire * jeu.quantite_depose);
+  }, 0);
+
+  // Calcul des frais de dépôt basés sur le pourcentage de frais de dépôt de la session active
+  const depotFeePercentage = activeSession?.pourc_frais_depot || 0;
+  const totalFraisDepot = (depotFeePercentage / 100) * totalDeposits;
+
   const handleSubmit = async () => {
     if (!formData.VendeurID) {
       alert("Veuillez sélectionner un vendeur.");
@@ -85,12 +102,16 @@ const CreateProductModal = ({
       alert("Veuillez ajouter au moins un jeu.");
       return;
     }
-    if (formData.jeux.some(jeu => !jeu.nomJeu || jeu.prixUnitaire <= 0 || jeu.quantite_depose <= 0)) {
+    if (
+      formData.jeux.some(
+        (jeu) =>
+          !jeu.nomJeu || jeu.prixUnitaire <= 0 || jeu.quantite_depose <= 0
+      )
+    ) {
       alert("Vérifiez les informations des jeux (nom, prix unitaire et quantité).");
       return;
     }
   
-    // Log des données envoyées à l'API
     console.log("Données du dépôt : ", {
       vendeurId: formData.VendeurID,
       jeux: formData.jeux,
@@ -100,18 +121,28 @@ const CreateProductModal = ({
       await createDepot({
         vendeurId: formData.VendeurID,
         jeux: formData.jeux.map((jeu) => ({
-          nomJeu: jeu.nomJeu,  // Cela doit être l'ID de la marque
+          nomJeu: jeu.nomJeu,  // l'ID de la marque
           prixUnitaire: jeu.prixUnitaire,
           quantite_depose: jeu.quantite_depose,
         })),
       }).unwrap();
+      
+      alert("Dépôt créé avec succès !");
+      
+      // Réinitialiser le formulaire pour permettre la création d'un nouveau dépôt
+      setFormData(initialFormData);
+      setQuantities({});
+      
+      // Vous pouvez appeler onCreate ici si nécessaire
       onCreate(formData);
+      
+      // Fermer le modal
       onClose();
     } catch (err) {
       console.error("Erreur lors de la création du dépôt", err);
+      alert("Erreur lors de la création du dépôt.");
     }
   };
-  
 
   return (
     <Modal open={isOpen} onClose={onClose}>
@@ -125,6 +156,8 @@ const CreateProductModal = ({
           boxShadow: 24,
           p: 4,
           width: "500px",
+          maxHeight: "80vh",
+          overflowY: "auto",
         }}
       >
         <h2>Ajouter un Dépôt</h2>
@@ -151,11 +184,11 @@ const CreateProductModal = ({
             <FormControl fullWidth margin="normal">
               <InputLabel>Jeu</InputLabel>
               <Select
-                value={jeu.nomJeu}
+                value={jeu.nomJeu.toString()}
                 onChange={(e) =>
                   handleJeuChange(index, "nomJeu", e.target.value)
                 }
-                label="JeuMarque"
+                label="Jeu"
               >
                 {jeuxMarques?.map((marque) => (
                   <MenuItem key={marque.JeuRef_id} value={marque.JeuRef_id}>
@@ -206,19 +239,35 @@ const CreateProductModal = ({
           Ajouter un jeu
         </Button>
 
-        {/* Bouton pour soumettre */}
-        <Button
-          variant="contained"
-          color="primary"
-          onClick={handleSubmit}
-          sx={{ mt: 2 }}
-          disabled={isCreatingDepot}
-        >
-          {isCreatingDepot ? <CircularProgress size={24} /> : "Déposer"}
-        </Button>
+        {/* Affichage du total des dépôts et des frais de dépôt */}
+        <Box sx={{ mt: 2, p: 1, backgroundColor: "#f5f5f5", borderRadius: "4px" }}>
+          <p>
+            <strong>Total des dépôts :</strong> ${totalDeposits.toFixed(2)}
+          </p>
+          <p>
+            <strong>Frais de dépôt ({depotFeePercentage}%):</strong> ${totalFraisDepot.toFixed(2)}
+          </p>
+        </Box>
+
+        {/* Boutons de validation */}
+        <Box sx={{ display: "flex", justifyContent: "end", mt: 2, gap: 2 }}>
+          <Button variant="outlined" color="secondary" onClick={onClose}>
+            Annuler
+          </Button>
+          <Button
+            variant="contained"
+            color="primary"
+            onClick={handleSubmit}
+            disabled={isCreatingDepot}
+          >
+            {isCreatingDepot ? <CircularProgress size={24} /> : "Déposer"}
+          </Button>
+        </Box>
       </Box>
     </Modal>
   );
 };
 
 export default CreateProductModal;
+
+
